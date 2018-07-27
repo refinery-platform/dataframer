@@ -1,13 +1,14 @@
 language: python
 
 python:
-- 2.7
 - 3.6
+# Python 2.7 caused test failures
 env:
   matrix:
     - PANDAS_VERSION='0.23.3'  # Latest: If this changes update deploy.
     - PANDAS_VERSION='0.22.0'  # Last 0.22: Dec 31, 2017
     - PANDAS_VERSION='0.21.1'  # Last 0.21: Dec 13, 2017
+    # Earlier versions of pandas caused test failures.
 matrix:
   fast_finish: true
 
