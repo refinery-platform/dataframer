@@ -7,9 +7,6 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 # Race condition truncates logs on Travis: "sleep" might help.
 # https://github.com/travis-ci/travis-ci/issues/6018
 
-ping -c1 container-name.docker.localhost > /dev/null  # Prereq for hostname-based dispatch.
-docker info | grep 'Operating System'  # Are we able to connect to Docker, and what OS is it?
-
 start test
 python -m unittest tests/*.py
 end test

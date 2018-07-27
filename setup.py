@@ -19,7 +19,7 @@ python_classifiers = ['Programming Language :: Python :: {}'.format(v)
 assert len(python_classifiers) > 0
 
 setup(
-    name='django_docker_engine',
+    name='dataframer',
     version=version,
     install_requires=[
         'pandas'
