@@ -1,7 +1,10 @@
 import warnings
+from collections import namedtuple
 from csv import Sniffer, excel_tab
 
 from pandas import read_csv
+
+DataFrameInfo = namedtuple('DataFrameInfo', ['data_frame', 'label_map'])
 
 
 def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
@@ -74,5 +77,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
         label_map = None
 
     if keep_strings:
-        return (dataframe, label_map)
-    return (dataframe.select_dtypes(['number']), label_map)
+        return DataFrameInfo(data_frame=dataframe, label_map=label_map)
+    return DataFrameInfo(
+        data_frame=dataframe.select_dtypes(['number']),
+        label_map=label_map)

@@ -32,10 +32,10 @@ class TestTabularParser(TestDataFrames):
         file = tempfile.NamedTemporaryFile(mode='wb+')
         file.write(input_bytes)
         file.seek(0)
-        (df, label_map) = parse(file, **kwargs)
-        self.assertEqualDataFrames(df, df_target, message)
+        df_info = parse(file, **kwargs)
+        self.assertEqualDataFrames(df_info.data_frame, df_target, message)
         if label_map_target:
-            self.assertEqual(label_map, label_map_target, message)
+            self.assertEqual(df_info.label_map, label_map_target, message)
 
     def test_read_crazy_delimiters(self):
         for c in '~!@#$%^&*|:;':
