@@ -9,13 +9,14 @@ DataFrameInfo = namedtuple('DataFrameInfo', ['data_frame', 'label_map'])
 
 def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
     '''
-    Given a file handle, try to determine its format and return a dataframe.
+    Given a file handle, try to determine its format and return a DataFrame.
 
-    :param file:
+    :param file: Fine handle open for binary reading
     :param col_zero_index:
-    :param keep_strings: Preserve string values in dataframe if True
+    :param keep_strings: Preserve string values in DataFrame if True
     :param relabel: Use the first string column inside the table as row labels
-    :return:
+    :return: DataFrameInfo, which contains the DataFrame itself,
+    and a dict of labels for the rows, if relabel is True
     '''
     compression_type = {
         b'\x1f\x8b': 'gzip',
