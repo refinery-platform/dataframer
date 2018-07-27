@@ -8,7 +8,7 @@ die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 # https://github.com/travis-ci/travis-ci/issues/6018
 
 start test
-python -m unittest tests/*.py
+python -m unittest discover
 end test
 
 start doctest
