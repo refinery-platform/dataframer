@@ -8,8 +8,6 @@ env:
     - PANDAS_VERSION='0.23.3'  # Latest: If this changes update deploy.
     - PANDAS_VERSION='0.22.0'  # Last 0.22: Dec 31, 2017
     - PANDAS_VERSION='0.21.1'  # Last 0.21: Dec 13, 2017
-    - PANDAS_VERSION='0.20.3'  # Last 0.20: Jul 7, 2017
-    - PANDAS_VERSION='0.19.2'  # Last 0.19: Dec 24, 2016
 matrix:
   fast_finish: true
 
