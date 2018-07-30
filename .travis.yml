@@ -1,0 +1,33 @@
+language: python
+
+python:
+- 3.6
+# Python 2.7 caused test failures
+env:
+  matrix:
+    - PANDAS_VERSION='0.23.3'  # Latest: If this changes update deploy.
+    - PANDAS_VERSION='0.22.0'  # Last 0.22: Dec 31, 2017
+    - PANDAS_VERSION='0.21.1'  # Last 0.21: Dec 13, 2017
+    # Earlier versions of pandas caused test failures.
+matrix:
+  fast_finish: true
+
+install:
+- set -o errexit
+- pip install -r requirements-dev.txt
+- pip install -r requirements.txt
+- pip install pandas==$PANDAS_VERSION
+
+script: ./test.sh
+deploy:
+  # Defaults to only deploy on master;
+  # PyPi blocks the same version from being uploaded twice.
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: mccalluc
+  password:
+    secure: "I1zSY3ls6m5l16aMAL0vOhpGefBHF30KweE/IqC2/wUHZ58uqTbBguAB4nD/NOP9MVycDiGM460OWU7hpnZTwk193WGEqQxt14g+amzylMGunKXcidYlswFH69ca5itQLQbjPMliFEfNhU6hpBSpt07ACjp0o9RJ016YQrCkCmd0zFhe3PtFU0f81NIcArM4s83HoUGix2px69g3p273D9iusHVX43G0ogTYE+32ZmMpoj/RO9NdHOJiX+A4lER0Lscz6UPr+iIgWz0Qs+wpc2/MAkZlFnHSsEUELD6tpZTO9NJJCfYyLjwzq7RyAK3T90/aWrztzjQdkN5EwHt/tpjXMukP+KkQSC3+SemcQjTJDPVUF7qN7DcyhXHZjqvvklvyCY52Cf1rvVnCOzlVvNIaAKQJjr4giSLJvXVkqmKvXPlsfTAFAcG8cZj2NobVqZ16TDgF/MMUPQ2nhZtW+HGbLEtJ1qpuEDwB1SKuWFOLG8m37HNeKRy4zjr8GY8QvYWqOqUeTkiMmS+3yDDPqysDfTkJt2Ihiw0cThLv9tJcm04k16A2KnyWe11shxsNNWUH8VnipxheoU6k7SC94leUnGWfq3MiJCDZlzksukJ4Mz+uxQJCl00iFHKA8CF/3DMH7AfvD4B5ozF2klQbcZBbXjbdzW6r0e5Qb+BPmkM="
+  on:
+    branch: master
+    python: 3.6
+    condition: $PANDAS_VERSION = '0.23.3'
