@@ -45,38 +45,23 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
             raise Exception(
                 'Unsupported compression type: {}'.format(compression_type))
         first_characters = first_bytes.decode(encoding)
-        is_gct = first_characters.startswith('#1.2')
-        dialect = excel_tab if is_gct else Sniffer().sniff(first_characters)
-        file.seek(0)
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            dataframe = read_csv(
-                file,
-                index_col=index_col,
-                compression=compression_type,
-                dialect=dialect,
-                skiprows=2 if is_gct else 0,
-                engine='c'
-            )
     else:
-        # We could use read_csv with separator=None...
-        # but that requires the python parser, which seems to be about
-        # three times as slow as the c parser.
-        first_line = file.readline().decode(encoding)
-        is_gct = first_line.startswith('#1.2')
-        dialect = excel_tab if is_gct else Sniffer().sniff(first_line)
-        file.seek(0)
-        with warnings.catch_warnings():
-            # https://github.com/pandas-dev/pandas/issues/18845
-            # pandas raises unnecessary warnings.
-            warnings.simplefilter('ignore')
-            dataframe = read_csv(
-                file,
-                index_col=index_col,
-                dialect=dialect,
-                skiprows=2 if is_gct else 0,
-                engine='c'
-            )
+        first_characters = file.readline().decode(encoding)
+    is_gct = first_characters.startswith('#1.2')
+    dialect = excel_tab if is_gct else Sniffer().sniff(first_characters)
+    file.seek(0)
+    with warnings.catch_warnings():
+        # https://github.com/pandas-dev/pandas/issues/18845
+        # pandas raises unnecessary warnings.
+        warnings.simplefilter('ignore')
+        dataframe = read_csv(
+            file,
+            index_col=index_col,
+            compression=compression_type,
+            dialect=dialect,
+            skiprows=2 if is_gct else 0,
+            engine='c'
+        )
     if is_gct:
         dataframe.drop(columns=['Description'], inplace=True)
         # TODO: Combine the first two columns?
