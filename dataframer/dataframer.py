@@ -10,7 +10,7 @@ DataFrameInfo = namedtuple('DataFrameInfo', ['data_frame', 'label_map'])
 
 
 def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
-          peek_window=1024, encoding='latin-1'):
+          encoding='latin-1'):
     '''
     Given a file handle, try to determine its format and return a DataFrame.
 
@@ -18,7 +18,6 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
     :param col_zero_index:
     :param keep_strings: Preserve string values in DataFrame if True
     :param relabel: Use the first string column inside the table as row labels
-    :param peek_window: If zipped, how many bytes to read to guess dialect
     :param encoding: Character encoding to assume
     :return: DataFrameInfo, which contains the DataFrame itself,
     and a dict of labels for the rows, if relabel is True
@@ -34,6 +33,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
     index_col = 0 if col_zero_index else None
 
     if compression_type:
+        peek_window = 1024  # arbitrary
         if compression_type == 'gzip':
             first_bytes = gzip.open(file).peek(peek_window)
         elif compression_type == 'zip':
@@ -61,6 +61,8 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
             dialect=dialect,
             skiprows=2 if is_gct else 0,
             engine='c'
+            # If other parameters were tweaked and it would fall back to the
+            # python engine, we'll get an explicit error instead.
         )
     if is_gct:
         dataframe.drop(columns=['Description'], inplace=True)
@@ -82,8 +84,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
     else:
         label_map = None
 
-    if keep_strings:
-        return DataFrameInfo(data_frame=dataframe, label_map=label_map)
-    return DataFrameInfo(
-        data_frame=dataframe.select_dtypes(['number']),
-        label_map=label_map)
+    if not keep_strings:
+        dataframe = dataframe.select_dtypes(['number'])
+
+    return DataFrameInfo(data_frame=dataframe, label_map=label_map)
