@@ -64,14 +64,8 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
         # three times as slow as the c parser.
         first_line = file.readline().decode(encoding)
         is_gct = first_line.startswith('#1.2')
-        if is_gct:
-            # GCT: throw away the second header line
-            file.readline()
-            dialect = excel_tab
-        else:
-            dialect = Sniffer().sniff(first_line)
-            # print('"{}" -> "{}"'.format(first_line, dialect.delimiter))
-            file.seek(0)
+        dialect = excel_tab if is_gct else Sniffer().sniff(first_line)
+        file.seek(0)
         with warnings.catch_warnings():
             # https://github.com/pandas-dev/pandas/issues/18845
             # pandas raises unnecessary warnings.
@@ -80,6 +74,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
                 file,
                 index_col=index_col,
                 dialect=dialect,
+                skiprows=2 if is_gct else 0,
                 engine='c'
             )
     if is_gct:
