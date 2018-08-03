@@ -11,8 +11,8 @@ class TestDataFrames(unittest.TestCase):
 
     def assertEqualDataFrames(self, a, b, message=''):
         self.assertEqual(a.shape, b.shape, message)
-        a_np = np.array(a.as_matrix().tolist())
-        b_np = np.array(b.as_matrix().tolist())
+        a_np = np.array(a.values.tolist())
+        b_np = np.array(b.values.tolist())
         np.testing.assert_equal(a_np, b_np, message)
         self.assertEqual(a.columns.tolist(), b.columns.tolist(), message)
         self.assertEqual(a.index.tolist(), b.index.tolist(), message)
@@ -99,3 +99,7 @@ class TestTabularParser(TestDataFrames):
     def test_read_gct(self):
         self.assert_file_read(
             b'#1.2\n1\t1\nNames\tDescription\tb\tc\n1\tfoo\t2\t3', self.target)
+
+    def test_read_gct_gz(self):
+        self.assert_file_read(
+            b'\x1f\x8b\x08\x085\xa3c[\x00\x03fake.gct\x00S6\xd43\xe22\xe44\xe4\xf2K\xccM-\xe6tI-N.\xca,(\xc9\xcc\xcf\xe3L\xe2L\x06\xca\xa4\xe5\xe7s\x1aq\x1a\x03\x00\xe7\xcc\xe5\xe5(\x00\x00\x00', self.target)  # noqa: E501

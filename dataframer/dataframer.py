@@ -35,25 +35,29 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
 
     if compression_type:
         if compression_type == 'gzip':
-            head_bytes = gzip.open(file).peek(peek_window)
+            first_bytes = gzip.open(file).peek(peek_window)
         elif compression_type == 'zip':
             zf = zipfile.ZipFile(file)
             files = zf.namelist()
             assert len(files) == 1
-            head_bytes = zf.open(files[0]).peek(peek_window)
+            first_bytes = zf.open(files[0]).peek(peek_window)
         else:
             raise Exception(
                 'Unsupported compression type: {}'.format(compression_type))
-        head_string = head_bytes.decode(encoding)
-        dialect = Sniffer().sniff(head_string)
+        first_characters = first_bytes.decode(encoding)
+        is_gct = first_characters.startswith('#1.2')
+        dialect = excel_tab if is_gct else Sniffer().sniff(first_characters)
         file.seek(0)
-        dataframe = read_csv(
-            file,
-            index_col=index_col,
-            compression=compression_type,
-            dialect=dialect,  # TODO: Double check that this matters.
-            engine='c'
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            dataframe = read_csv(
+                file,
+                index_col=index_col,
+                compression=compression_type,
+                dialect=dialect,
+                skiprows=2 if is_gct else 0,
+                engine='c'
+            )
     else:
         # We could use read_csv with separator=None...
         # but that requires the python parser, which seems to be about
@@ -78,9 +82,9 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
                 dialect=dialect,
                 engine='c'
             )
-        if is_gct:
-            dataframe.drop(columns=['Description'], inplace=True)
-            # TODO: Combine the first two columns?
+    if is_gct:
+        dataframe.drop(columns=['Description'], inplace=True)
+        # TODO: Combine the first two columns?
 
     if relabel:
         label_map = {
