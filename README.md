@@ -14,6 +14,9 @@ but for testing a byte stream works just as well.
 ```
 >>> from io import BytesIO
 >>> from dataframer import dataframer
+>>> from pandas import set_option
+
+>>> set_option('display.max_columns', None)
 
 >>> bytes = b'a,b,c,z\n1,2,3,foo\n4,5,6,bar'
 >>> stream = BytesIO(bytes)
