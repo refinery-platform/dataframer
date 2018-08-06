@@ -10,6 +10,8 @@ SniffResult = namedtuple('SniffResult', ['compression', 'is_gct', 'dialect'])
 
 
 def sniff(file):
+    # The pandas default behavior is to look at filename extensions,
+    # but we decided we can't rely on those to be accurate.
     compression = {
         b'\x1f\x8b': 'gzip'
     }.get(file.read(2))
@@ -46,13 +48,6 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
     and a dict of labels for the rows, if relabel is True
     '''
 
-    # The pandas default behavior is to look at filename extensions,
-    # but we decided we can't rely on those to be accurate.
-    compression_type = {
-        b'\x1f\x8b': 'gzip',
-        b'\x50\x4b': 'zip'
-    }.get(file.read(2))
-    file.seek(0)
     index_col = 0 if col_zero_index else None
 
     sniff_result = sniff(file)
@@ -63,7 +58,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
         dataframe = read_csv(
             file,
             index_col=index_col,
-            compression=compression_type,
+            compression=sniff_result.compression,
             dialect=sniff_result.dialect,
             skiprows=2 if sniff_result.is_gct else 0,
             engine='c'
