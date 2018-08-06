@@ -9,13 +9,21 @@ from dataframer.dataframer import parse
 
 class TestDataFrames(unittest.TestCase):
 
-    def assertEqualDataFrames(self, a, b, message=''):
+    def assert_equal_data_frames(self, a, b, message=''):
         self.assertEqual(a.shape, b.shape, message)
         a_np = np.array(a.values.tolist())
         b_np = np.array(b.values.tolist())
         np.testing.assert_equal(a_np, b_np, message)
         self.assertEqual(a.columns.tolist(), b.columns.tolist(), message)
         self.assertEqual(a.index.tolist(), b.index.tolist(), message)
+
+    def assert_good_parse(self, input_bytes, df_target, label_map_target=None,
+                          kwargs={}, message=None):
+        stream = BytesIO(input_bytes)
+        df_info = parse(stream, **kwargs)
+        self.assert_equal_data_frames(df_info.data_frame, df_target, message)
+        if label_map_target:
+            self.assertEqual(df_info.label_map, label_map_target, message)
 
 
 class TestKwargs(TestDataFrames):
@@ -30,14 +38,6 @@ class TestFileTypes(TestDataFrames):
             columns=['b', 'c'],
             index=[1]
         )
-
-    def assert_good_parse(self, input_bytes, df_target, label_map_target=None,
-                          kwargs={}, message=None):
-        stream = BytesIO(input_bytes)
-        df_info = parse(stream, **kwargs)
-        self.assertEqualDataFrames(df_info.data_frame, df_target, message)
-        if label_map_target:
-            self.assertEqual(df_info.label_map, label_map_target, message)
 
     def test_read_crazy_delimiters(self):
         for c in '~!@#$%^&*|:;':
