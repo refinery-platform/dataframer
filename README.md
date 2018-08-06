@@ -6,9 +6,9 @@ Tries to load any file into a pandas DataFrame,
 with a minimum of configuration,
 and a focus on bioinformatics
 
-## Example
+## Examples
 
-Typically, you will pass in a file handle open for reading,
+Typically, you will pass in a binary file handle open for reading,
 but for testing a byte stream works just as well.
 
 ```
@@ -33,16 +33,41 @@ True
 
 ```
 
+Alternatively, they can be preserved in place...
 ```
->>> df_info = dataframer.parse(stream, )
+>>> df_info = dataframer.parse(stream, keep_strings=True)
+>>> df_info.data_frame
+   b  c    z
+a           
+1  2  3  foo
+4  5  6  bar
+>>> df_info.label_map is None
+True
+
+```
+
+... or they can be used to compose more meaningful row labels.
+```
+>>> df_info = dataframer.parse(stream, relabel=True)
 >>> df_info.data_frame
    b  c
 a      
 1  2  3
 4  5  6
+>>> df_info.label_map
+{1: 'foo / 1', 4: 'bar / 4'}
+
+```
+
+Finally, the first column can also be treated as data.
+```
+>>> df_info = dataframer.parse(stream, col_zero_index=False)
+>>> df_info.data_frame
+   a  b  c
+0  1  2  3
+1  4  5  6
 >>> df_info.label_map is None
 True
-
 
 ```
 
