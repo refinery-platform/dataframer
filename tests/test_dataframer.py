@@ -1,5 +1,5 @@
-import tempfile
 import unittest
+from io import BytesIO
 
 import numpy as np
 import pandas
@@ -18,7 +18,11 @@ class TestDataFrames(unittest.TestCase):
         self.assertEqual(a.index.tolist(), b.index.tolist(), message)
 
 
-class TestTabularParser(TestDataFrames):
+class TestOptions(TestDataFrames):
+    pass
+
+
+class TestFileTypes(TestDataFrames):
 
     def setUp(self):
         self.target = pandas.DataFrame([
@@ -29,10 +33,8 @@ class TestTabularParser(TestDataFrames):
 
     def assert_file_read(self, input_bytes, df_target, label_map_target=None,
                          kwargs={}, message=None):
-        file = tempfile.NamedTemporaryFile(mode='wb+')
-        file.write(input_bytes)
-        file.seek(0)
-        df_info = parse(file, **kwargs)
+        stream = BytesIO(input_bytes)
+        df_info = parse(stream, **kwargs)
         self.assertEqualDataFrames(df_info.data_frame, df_target, message)
         if label_map_target:
             self.assertEqual(df_info.label_map, label_map_target, message)
