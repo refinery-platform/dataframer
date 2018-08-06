@@ -78,7 +78,6 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
         )
     if sniff_result.is_gct:
         dataframe.drop(columns=['Description'], inplace=True)
-        # TODO: Combine the first two columns?
 
     if relabel:
         label_map = {

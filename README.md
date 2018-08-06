@@ -8,8 +8,8 @@ and a focus on bioinformatics
 
 ## Examples
 
-Typically, you will pass in a binary file handle open for reading,
-but for testing a byte stream works just as well.
+Typically, you’ll read a file from disk (`open('my-file.txt', 'rb')`),
+but a byte stream is simpler here.
 
 ```
 >>> from io import BytesIO
