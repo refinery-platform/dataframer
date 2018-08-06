@@ -11,8 +11,8 @@ class TestDataFrames(unittest.TestCase):
 
     def assertEqualDataFrames(self, a, b, message=''):
         self.assertEqual(a.shape, b.shape, message)
-        a_np = np.array(a.as_matrix().tolist())
-        b_np = np.array(b.as_matrix().tolist())
+        a_np = np.array(a.values.tolist())
+        b_np = np.array(b.values.tolist())
         np.testing.assert_equal(a_np, b_np, message)
         self.assertEqual(a.columns.tolist(), b.columns.tolist(), message)
         self.assertEqual(a.index.tolist(), b.index.tolist(), message)
@@ -54,11 +54,6 @@ class TestTabularParser(TestDataFrames):
         self.assert_file_read(
             b'\x1f\x8b\x08\x08\xe5\xf2\x82Z\x00\x03fake.csv\x00\xd3I\xd2I\xe62\xd41\xd21\x06\x00\xfb\x9a\xc9\xa6\n\x00\x00\x00', self.target)  # noqa: E501
 
-    def test_read_zip(self):
-        self.assert_file_read(
-            b'PK\x03\x04\n\x00\x00\x00\x00\x00\x8dZML\xfb\x9a\xc9\xa6\n\x00\x00\x00\n\x00\x00\x00\x08\x00\x1c\x00fake.csvUT\t\x00\x03J\x10\x83Zk\x11\x83Zux\x0b\x00\x01\x04\xf6\x01\x00\x00\x04\x14\x00\x00\x00,b,c\n1,2,3PK\x01\x02\x1e\x03\n\x00\x00\x00\x00\x00\x8dZML\xfb\x9a\xc9\xa6\n\x00\x00\x00\n\x00\x00\x00\x08\x00\x18\x00\x00\x00\x00\x00\x01\x00\x00\x00\xa4\x81\x00\x00\x00\x00fake.csvUT\x05\x00\x03J\x10\x83Zux\x0b\x00\x01\x04\xf6\x01\x00\x00\x04\x14\x00\x00\x00PK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00N\x00\x00\x00L\x00\x00\x00\x00\x00', self.target  # noqa: E501
-        )
-
     def test_read_csv(self):
         self.assert_file_read(b',b,c\n1,2,3', self.target)
 
@@ -99,3 +94,7 @@ class TestTabularParser(TestDataFrames):
     def test_read_gct(self):
         self.assert_file_read(
             b'#1.2\n1\t1\nNames\tDescription\tb\tc\n1\tfoo\t2\t3', self.target)
+
+    def test_read_gct_gz(self):
+        self.assert_file_read(
+            b'\x1f\x8b\x08\x085\xa3c[\x00\x03fake.gct\x00S6\xd43\xe22\xe44\xe4\xf2K\xccM-\xe6tI-N.\xca,(\xc9\xcc\xcf\xe3L\xe2L\x06\xca\xa4\xe5\xe7s\x1aq\x1a\x03\x00\xe7\xcc\xe5\xe5(\x00\x00\x00', self.target)  # noqa: E501
