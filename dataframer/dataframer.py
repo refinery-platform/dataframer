@@ -47,9 +47,6 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
     :return: DataFrameInfo, which contains the DataFrame itself,
     and a dict of labels for the rows, if relabel is True
     '''
-
-    index_col = 0 if col_zero_index else None
-
     sniff_result = sniff(file)
     with warnings.catch_warnings():
         # https://github.com/pandas-dev/pandas/issues/18845
@@ -57,7 +54,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
         warnings.simplefilter('ignore')
         dataframe = read_csv(
             file,
-            index_col=index_col,
+            index_col=0 if col_zero_index else None,
             compression=sniff_result.compression,
             dialect=sniff_result.dialect,
             skiprows=2 if sniff_result.is_gct else 0,
