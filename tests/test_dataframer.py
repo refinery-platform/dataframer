@@ -27,7 +27,47 @@ class TestDataFrames(unittest.TestCase):
 
 
 class TestKwargs(TestDataFrames):
-    pass
+
+    def test_col_zero_index(self):
+        self.assert_good_parse(
+            b'a,b,c\n1,2,3',
+            pandas.DataFrame([
+                [1, 2, 3]],
+                columns=['a', 'b', 'c'],
+                index=[0]
+            ),
+            kwargs={'col_zero_index': False})
+
+    def test_keep_strings(self):
+        self.assert_good_parse(
+            b',b,c,xxx\n1,2,3,X!',
+            pandas.DataFrame([
+                [2, 3, 'X!']],
+                columns=['b', 'c', 'xxx'],
+                index=[1]
+            ),
+            kwargs={'keep_strings': True})
+
+    def test_relabel(self):
+        self.assert_good_parse(
+            b',b,c,xxx\n1,2,3,X!',
+            pandas.DataFrame([
+                [2, 3]],
+                columns=['b', 'c'],
+                index=[1]
+            ),
+            label_map_target={1: 'X! / 1'},
+            kwargs={'relabel': True})
+
+    def test_first_row_only(self):
+        self.assert_good_parse(
+            b',b,c\n1,2,3\n4,5,6',
+            pandas.DataFrame([
+                [2, 3]],
+                columns=['b', 'c'],
+                index=[1]
+            ),
+            kwargs={'first_row_only': True})
 
 
 class TestFileTypes(TestDataFrames):
@@ -61,28 +101,6 @@ class TestFileTypes(TestDataFrames):
 
     def test_read_csv_remove_strings(self):
         self.assert_good_parse(b',b,c,xxx\n1,2,3,X!', self.target)
-
-    def test_read_csv_keep_strings(self):
-        self.assert_good_parse(
-            b',b,c,xxx\n1,2,3,X!',
-            pandas.DataFrame([
-                [2, 3, 'X!']],
-                columns=['b', 'c', 'xxx'],
-                index=[1]
-            ),
-            kwargs={'keep_strings': True})
-
-    def test_read_csv_merge_strings(self):
-        self.assert_good_parse(
-            b',b,c,xxx,yyy\n1,2,3,X!,Y!',
-            pandas.DataFrame([
-                [2, 3]],
-                columns=['b', 'c'],
-                index=[1]
-            ),
-            label_map_target={1: 'X! / 1'},
-            # We get the first text column, and the original index.
-            kwargs={'relabel': True})
 
     def test_read_csv_rn(self):
         self.assert_good_parse(b',b,c\r\n1,2,3', self.target)
