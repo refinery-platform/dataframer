@@ -7,10 +7,40 @@ from csv import Sniffer, excel_tab
 from pandas import read_csv
 
 DataFrameInfo = namedtuple('DataFrameInfo', ['data_frame', 'label_map'])
+SniffResult = namedtuple('SniffResult', ['compression', 'is_gct', 'dialect'])
 
 
-def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
-          encoding='latin-1'):
+def sniff(file):
+    compression = {
+        b'\x1f\x8b': 'gzip',
+        b'\x50\x4b': 'zip'
+    }.get(file.read(2))
+    file.seek(0)
+
+    encoding = 'latin-1'
+    if compression:
+        peek_window = 1024  # arbitrary
+        if compression == 'gzip':
+            first_bytes = gzip.open(file).peek(peek_window)
+        elif compression == 'zip':
+            zf = zipfile.ZipFile(file)
+            files = zf.namelist()
+            assert len(files) == 1
+            first_bytes = zf.open(files[0]).peek(peek_window)
+        else:
+            raise Exception(
+                'Unsupported compression type: {}'.format(compression))
+        first_characters = first_bytes.decode(encoding)
+    else:
+        first_characters = file.readline().decode(encoding)
+    is_gct = first_characters.startswith('#1.2')
+    dialect = excel_tab if is_gct else Sniffer().sniff(first_characters)
+
+    file.seek(0)
+    return SniffResult(compression=compression, is_gct=is_gct, dialect=dialect)
+
+
+def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
     '''
     Given a file handle, try to determine its format and return a DataFrame.
 
@@ -32,24 +62,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
     file.seek(0)
     index_col = 0 if col_zero_index else None
 
-    if compression_type:
-        peek_window = 1024  # arbitrary
-        if compression_type == 'gzip':
-            first_bytes = gzip.open(file).peek(peek_window)
-        elif compression_type == 'zip':
-            zf = zipfile.ZipFile(file)
-            files = zf.namelist()
-            assert len(files) == 1
-            first_bytes = zf.open(files[0]).peek(peek_window)
-        else:
-            raise Exception(
-                'Unsupported compression type: {}'.format(compression_type))
-        first_characters = first_bytes.decode(encoding)
-    else:
-        first_characters = file.readline().decode(encoding)
-    is_gct = first_characters.startswith('#1.2')
-    dialect = excel_tab if is_gct else Sniffer().sniff(first_characters)
-    file.seek(0)
+    sniff_result = sniff(file)
     with warnings.catch_warnings():
         # https://github.com/pandas-dev/pandas/issues/18845
         # pandas raises unnecessary warnings.
@@ -58,13 +71,13 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
             file,
             index_col=index_col,
             compression=compression_type,
-            dialect=dialect,
-            skiprows=2 if is_gct else 0,
+            dialect=sniff_result.dialect,
+            skiprows=2 if sniff_result.is_gct else 0,
             engine='c'
             # If other parameters were tweaked and it would fall back to the
             # python engine, we'll get an explicit error instead.
         )
-    if is_gct:
+    if sniff_result.is_gct:
         dataframe.drop(columns=['Description'], inplace=True)
         # TODO: Combine the first two columns?
 

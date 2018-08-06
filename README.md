@@ -9,17 +9,20 @@ and a focus on bioinformatics
 ## Example
 
 ```
->>> filename = '/tmp/test.csv'
->>> with open(filename, 'w') as f:
-...   f.write('a,b,c\n1,2,3\n4,5,6')
-17
+>>> from io import BytesIO
 >>> from dataframer import dataframer
->>> pair = dataframer.parse(open(filename, 'rb'))
->>> pair[0]
+
+>>> bytes = b'a,b,c,z\n1,2,3,foo\n4,5,6,bar'
+>>> stream = BytesIO(bytes)
+
+>>> df_info = dataframer.parse(stream)
+>>> df_info.data_frame
    b  c
 a      
 1  2  3
 4  5  6
+>>> df_info.label_map
+
 
 ```
 
