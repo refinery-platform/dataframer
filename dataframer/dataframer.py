@@ -11,9 +11,7 @@ SniffResult = namedtuple('SniffResult', ['compression', 'is_gct', 'dialect'])
 
 def sniff(file):
     compression = {
-        b'\x1f\x8b': 'gzip',
-        # No use case for zip files right now.
-        # b'\x50\x4b': 'zip'
+        b'\x1f\x8b': 'gzip'
     }.get(file.read(2))
     file.seek(0)
 
@@ -22,10 +20,6 @@ def sniff(file):
         peek_window = 1024  # arbitrary
         if compression == 'gzip':
             first_bytes = gzip.open(file).peek(peek_window)
-        # elif compression == 'zip':
-        #     zf = zipfile.ZipFile(file)
-        #     files = zf.namelist()
-        #     first_bytes = zf.open(files[0]).peek(peek_window)
         else:
             raise Exception(
                 'Unsupported compression type: {}'.format(compression))
