@@ -8,6 +8,9 @@ and a focus on bioinformatics
 
 ## Example
 
+Typically, you will pass in a file handle open for reading,
+but for testing a byte stream works just as well.
+
 ```
 >>> from io import BytesIO
 >>> from dataframer import dataframer
@@ -15,13 +18,30 @@ and a focus on bioinformatics
 >>> bytes = b'a,b,c,z\n1,2,3,foo\n4,5,6,bar'
 >>> stream = BytesIO(bytes)
 
+```
+
+Default behavior is to strip non-numeric values after the first column.
+```
 >>> df_info = dataframer.parse(stream)
 >>> df_info.data_frame
    b  c
 a      
 1  2  3
 4  5  6
->>> df_info.label_map
+>>> df_info.label_map is None
+True
+
+```
+
+```
+>>> df_info = dataframer.parse(stream, )
+>>> df_info.data_frame
+   b  c
+a      
+1  2  3
+4  5  6
+>>> df_info.label_map is None
+True
 
 
 ```
