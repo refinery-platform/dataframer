@@ -62,13 +62,26 @@ a
 
 ```
 
-Finally, the first column can also be treated as data.
+Alternatively, the first column can also be treated as data.
 ```
 >>> df_info = dataframer.parse(stream, col_zero_index=False)
 >>> df_info.data_frame
    a  b  c
 0  1  2  3
 1  4  5  6
+>>> df_info.label_map is None
+True
+
+```
+
+If you don't want to read the whole file, but instead only the first
+row so you have information on the columns:
+```
+>>> df_info = dataframer.parse(stream, first_row_only=True)
+>>> df_info.data_frame
+   b  c
+a      
+1  2  3
 >>> df_info.label_map is None
 True
 

@@ -35,7 +35,8 @@ def sniff(file):
     return SniffResult(compression=compression, is_gct=is_gct, dialect=dialect)
 
 
-def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
+def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
+          first_row_only=False):
     '''
     Given a file handle, try to determine its format and return a DataFrame.
 
@@ -58,6 +59,7 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
             compression=sniff_result.compression,
             dialect=sniff_result.dialect,
             skiprows=2 if sniff_result.is_gct else 0,
+            nrows=1 if first_row_only else None,
             engine='c'
             # If other parameters were tweaked and it would fall back to the
             # python engine, we'll get an explicit error instead.
