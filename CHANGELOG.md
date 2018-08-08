@@ -1,5 +1,9 @@
 # Change Log
 
+## [v0.0.3](https://pypi.org/project/dataframer/0.0.3/) (Aug 6, 2018)
+
+* Option to just take a single row.
+
 ## [v0.0.2](https://pypi.org/project/dataframer/0.0.2/) (Aug 3, 2018)
 
 * Parse zipped GCT files.

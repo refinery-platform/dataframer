@@ -10,6 +10,8 @@ SniffResult = namedtuple('SniffResult', ['compression', 'is_gct', 'dialect'])
 
 
 def sniff(file):
+    # The pandas default behavior is to look at filename extensions,
+    # but we decided we can't rely on those to be accurate.
     compression = {
         b'\x1f\x8b': 'gzip'
     }.get(file.read(2))
@@ -33,7 +35,8 @@ def sniff(file):
     return SniffResult(compression=compression, is_gct=is_gct, dialect=dialect)
 
 
-def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
+def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
+          first_row_only=False):
     '''
     Given a file handle, try to determine its format and return a DataFrame.
 
@@ -45,16 +48,6 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
     :return: DataFrameInfo, which contains the DataFrame itself,
     and a dict of labels for the rows, if relabel is True
     '''
-
-    # The pandas default behavior is to look at filename extensions,
-    # but we decided we can't rely on those to be accurate.
-    compression_type = {
-        b'\x1f\x8b': 'gzip',
-        b'\x50\x4b': 'zip'
-    }.get(file.read(2))
-    file.seek(0)
-    index_col = 0 if col_zero_index else None
-
     sniff_result = sniff(file)
     with warnings.catch_warnings():
         # https://github.com/pandas-dev/pandas/issues/18845
@@ -62,10 +55,11 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False):
         warnings.simplefilter('ignore')
         dataframe = read_csv(
             file,
-            index_col=index_col,
-            compression=compression_type,
+            index_col=0 if col_zero_index else None,
+            compression=sniff_result.compression,
             dialect=sniff_result.dialect,
             skiprows=2 if sniff_result.is_gct else 0,
+            nrows=1 if first_row_only else None,
             engine='c'
             # If other parameters were tweaked and it would fall back to the
             # python engine, we'll get an explicit error instead.
