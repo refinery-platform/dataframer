@@ -31,8 +31,8 @@ class TestKwargs(TestDataFrames):
     def test_col_zero_index(self):
         self.assert_good_parse(
             b'a,b,c\n1,2,3',
-            pandas.DataFrame([
-                [1, 2, 3]],
+            pandas.DataFrame(
+                [[1, 2, 3]],
                 columns=['a', 'b', 'c'],
                 index=[0]
             ),
@@ -41,8 +41,8 @@ class TestKwargs(TestDataFrames):
     def test_keep_strings(self):
         self.assert_good_parse(
             b',b,c,xxx\n1,2,3,X!',
-            pandas.DataFrame([
-                [2, 3, 'X!']],
+            pandas.DataFrame(
+                [[2, 3, 'X!']],
                 columns=['b', 'c', 'xxx'],
                 index=[1]
             ),
@@ -51,8 +51,8 @@ class TestKwargs(TestDataFrames):
     def test_relabel(self):
         self.assert_good_parse(
             b',b,c,xxx\n1,2,3,X!',
-            pandas.DataFrame([
-                [2, 3]],
+            pandas.DataFrame(
+                [[2, 3]],
                 columns=['b', 'c'],
                 index=[1]
             ),
@@ -62,8 +62,8 @@ class TestKwargs(TestDataFrames):
     def test_first_row_only(self):
         self.assert_good_parse(
             b',b,c\n1,2,3\n4,5,6',
-            pandas.DataFrame([
-                [2, 3]],
+            pandas.DataFrame(
+                [[2, 3]],
                 columns=['b', 'c'],
                 index=[1]
             ),
