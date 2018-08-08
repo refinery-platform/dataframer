@@ -74,8 +74,8 @@ True
 
 ```
 
-If you don't want to read the whole file, but instead only the first
-row so you have information on the columns:
+If you don't need the whole file, but instead only want the first
+row for column information:
 ```
 >>> df_info = dataframer.parse(stream, first_row_only=True)
 >>> df_info.data_frame
