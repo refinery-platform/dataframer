@@ -2,11 +2,14 @@ import gzip
 import warnings
 from collections import namedtuple
 from csv import Sniffer, excel_tab
+from re import search
 
-from pandas import read_csv
+from pandas import DataFrame, read_csv
 
 DataFrameInfo = namedtuple('DataFrameInfo', ['data_frame', 'label_map'])
-SniffResult = namedtuple('SniffResult', ['compression', 'is_gct', 'dialect'])
+SniffResult = namedtuple('SniffResult',
+                         ['compression', 'is_gct', 'dialect',
+                          'is_list', 'as_list'])
 
 
 def sniff(file):
@@ -31,8 +34,17 @@ def sniff(file):
     is_gct = first_characters.startswith('#1.2')
     dialect = excel_tab if is_gct else Sniffer().sniff(first_characters)
 
+    if search(r'\W', first_characters.split('\n')[0]):
+        is_list = False
+        as_list = None
+    else:
+        # No non-word characters in first line
+        is_list = True
+        as_list = DataFrame({'item': file.readlines()})
+
     file.seek(0)
-    return SniffResult(compression=compression, is_gct=is_gct, dialect=dialect)
+    return SniffResult(compression=compression, is_gct=is_gct, dialect=dialect,
+                       is_list=is_list, as_list=as_list)
 
 
 def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
@@ -49,6 +61,8 @@ def parse(file, col_zero_index=True, keep_strings=False, relabel=False,
     and a dict of labels for the rows, if relabel is True
     '''
     sniff_result = sniff(file)
+    if sniff_result.is_list:
+        return DataFrameInfo(data_frame=sniff_result.as_list, label_map=None)
     with warnings.catch_warnings():
         # https://github.com/pandas-dev/pandas/issues/18845
         # pandas raises unnecessary warnings.
