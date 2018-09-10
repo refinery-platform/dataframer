@@ -87,6 +87,19 @@ True
 
 ```
 
+Single column lists are given an implicit header:
+```
+>>> bytes = b'banana\napple\npear'
+>>> stream = BytesIO(bytes)
+>>> df_info = dataframer.parse(stream)
+>>> df_info.data_frame
+     item
+0  banana
+1   apple
+2    pear
+
+```
+
 ## Release process
 
 In your branch update `VERSION.txt`, using semantic versioning: When the PR
