@@ -39,9 +39,10 @@ def sniff(file):
         as_list = None
     else:
         # No non-word characters in first line
+        file.seek(0)
         is_list = True
-        as_list = DataFrame({'item': file.readlines()})
-
+        as_list = DataFrame({'item': [bytes.decode(encoding) for
+                                      bytes in file.read().splitlines()]})
     file.seek(0)
     return SniffResult(compression=compression, is_gct=is_gct, dialect=dialect,
                        is_list=is_list, as_list=as_list)

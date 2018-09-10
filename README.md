@@ -93,9 +93,10 @@ Single column lists are given an implicit header:
 >>> stream = BytesIO(bytes)
 >>> df_info = dataframer.parse(stream)
 >>> df_info.data_frame
-banana
-apple
-pear
+     item
+0  banana
+1   apple
+2    pear
 
 ```
 
