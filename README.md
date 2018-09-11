@@ -103,4 +103,4 @@ Single column lists are given an implicit header:
 ## Release process
 
 In your branch update `VERSION.txt`, using semantic versioning: When the PR
-is merged, the successful Docker build will push a new version to pypi.
+is merged, the successful Travis build will push a new version to pypi.
